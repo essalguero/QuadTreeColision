@@ -19,6 +19,7 @@ public:
 	inline Point getCentro() { return centro; }
 	inline int getRadio() { return radio; }
 	inline int getProfundidad() { return profundidad; }
+	inline int getId() { return identificador;  }
 private:
 
 	int identificador;

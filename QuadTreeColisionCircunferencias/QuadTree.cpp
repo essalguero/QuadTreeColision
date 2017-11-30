@@ -1,6 +1,8 @@
 #include "stdafx.h"
 #include "QuadTree.h"
 
+#include <cstdlib>
+
 QuadTree::~QuadTree()
 {
 	if (hijos[0] != nullptr)
@@ -16,10 +18,10 @@ void QuadTree::particionar()
 {
 	int width = centro.getX() / 2;
 	int heigth = centro.getY() / 2;
-	hijos[0] = new QuadTree(Point(centro.getX() - width, centro.getY() - heigth));
-	hijos[1] = new QuadTree(Point(centro.getX() + width, centro.getY() - heigth));
-	hijos[2] = new QuadTree(Point(centro.getX() + width, centro.getY() + heigth));
-	hijos[3] = new QuadTree(Point(centro.getX() - width, centro.getY() + heigth));
+	hijos[0] = new QuadTree(Point(centro.getX() - width, centro.getY() - heigth), nivel + 1);
+	hijos[1] = new QuadTree(Point(centro.getX() + width, centro.getY() - heigth), nivel + 1);
+	hijos[2] = new QuadTree(Point(centro.getX() + width, centro.getY() + heigth), nivel + 1);
+	hijos[3] = new QuadTree(Point(centro.getX() - width, centro.getY() + heigth), nivel + 1);
 	
 }
 
@@ -69,11 +71,11 @@ void QuadTree::addObjeto(Circunferencia circunferencia)
 
 	list<Circunferencia> listaActual;
 
-	if (lista.size() == 6) {
-		particionar();
-		for (Circunferencia c : lista)
+	if (nivel < MAX_NIVEL) {
+		/*if ( abs(circunferencia.getCentro().getX() - centro.getX()) < circunferencia.getRadio() && 
+			abs(circunferencia.getCentro().getY() - centro.getY()) < circunferencia.getRadio())
 		{
-			cuadrante = getCuadrante(c);
+			cuadrante = getCuadrante(circunferencia);
 
 			if (-1 == cuadrante)
 			{
@@ -84,26 +86,65 @@ void QuadTree::addObjeto(Circunferencia circunferencia)
 				hijos[cuadrante]->addObjeto(c);
 			}
 		}
-		lista = listaActual;
-
-		cuadrante = getCuadrante(circunferencia);
-		if (-1 == cuadrante)
+		else {
+			lista.push_back(circunferencia);
+		}*/
+		if (abs(circunferencia.getCentro().getX() - centro.getX()) < circunferencia.getRadio() ||
+			abs(circunferencia.getCentro().getY() - centro.getY()) < circunferencia.getRadio())
 		{
 			lista.push_back(circunferencia);
 		}
 		else
 		{
-			hijos[cuadrante]->addObjeto(circunferencia);
+			cuadrante = getCuadrante(circunferencia);
+
+			if (-1 == cuadrante)
+			{
+				lista.push_back(circunferencia);
+			}
+			else
+			{
+				if (hijos[0] == nullptr)
+				{
+					particionar();
+				}
+				hijos[cuadrante]->addObjeto(circunferencia);
+			}
 		}
 	}
-	else
-	{
-		if (nullptr == hijos[0])
-		{
-			lista.push_back(circunferencia);
-		}
-		else
-		{
+	else {
+		lista.push_back(circunferencia);
+	}
+}
+
+void QuadTree::addObjeto_old(Circunferencia circunferencia)
+{
+	int cuadrante = -1;
+
+	list<Circunferencia> listaActual;
+
+	if (nivel < MAX_NIVEL) {
+
+		if (lista.size() == 6) {
+			particionar();
+
+			cout << "Particionando" << endl;
+
+			for (Circunferencia c : lista)
+			{
+				cuadrante = getCuadrante(c);
+
+				if (-1 == cuadrante)
+				{
+					listaActual.push_back(c);
+				}
+				else
+				{
+					hijos[cuadrante]->addObjeto(c);
+				}
+			}
+			lista = listaActual;
+
 			cuadrante = getCuadrante(circunferencia);
 			if (-1 == cuadrante)
 			{
@@ -114,6 +155,29 @@ void QuadTree::addObjeto(Circunferencia circunferencia)
 				hijos[cuadrante]->addObjeto(circunferencia);
 			}
 		}
+		else
+		{
+			if (nullptr == hijos[0])
+			{
+				lista.push_back(circunferencia);
+			}
+			else
+			{
+				cuadrante = getCuadrante(circunferencia);
+				if (-1 == cuadrante)
+				{
+					lista.push_back(circunferencia);
+				}
+				else
+				{
+					hijos[cuadrante]->addObjeto(circunferencia);
+				}
+			}
+		}
+	}
+	else
+	{
+		lista.push_back(circunferencia);
 	}
 
 
@@ -126,7 +190,12 @@ void QuadTree::colision(const Point & p, vector<Circunferencia> & vectorColision
 	{
 		if (p.distance2(c.getCentro()) <= (c.getRadio() * c.getRadio()))
 		{
-			vectorColisiones.push_back(c);
+			if ( (vectorColisiones.size() == 0) || 
+				 (c.getProfundidad() >= (*vectorColisiones.begin()).getProfundidad()) ) {
+				vectorColisiones.push_back(c);
+			} else {
+				vectorColisiones.insert(vectorColisiones.begin(), c);
+			}
 		}
 	}
 
@@ -144,12 +213,18 @@ Circunferencia * QuadTree::colision (const Point & p)
 	Circunferencia * circunferenciaColision = nullptr;
 
 	int pos = 0;
-
+	
 	for (Circunferencia c : lista)
 	{
 		if (p.distance2(c.getCentro()) <= (c.getRadio() * c.getRadio()))
 		{
-			vectorColisiones.push_back(c);
+			if ( (vectorColisiones.size() == 0) || 
+				 (c.getProfundidad() >= (*vectorColisiones.begin()).getProfundidad()) ) {
+				vectorColisiones.push_back(c);
+			}
+			else {
+				vectorColisiones.insert(vectorColisiones.begin(), c);
+			}
 		}
 	}
 
@@ -163,7 +238,7 @@ Circunferencia * QuadTree::colision (const Point & p)
 
 	if (vectorColisiones.size() != 0)
 	{
-		int i = 1;
+		/*int i = 1;
 		for (auto it = vectorColisiones.begin() + 1; it < vectorColisiones.end(); ++it)
 		{
 			if ((*it).getProfundidad() > vectorColisiones.at(pos).getProfundidad())
@@ -173,8 +248,8 @@ Circunferencia * QuadTree::colision (const Point & p)
 			i++;
 		}
 
-		circunferenciaColision = new Circunferencia(vectorColisiones.at(pos));
-		
+		circunferenciaColision = new Circunferencia(vectorColisiones.at(pos));*/
+		circunferenciaColision = new Circunferencia(vectorColisiones.at(0));
 	}
 	
 	return circunferenciaColision;
@@ -184,17 +259,14 @@ Circunferencia * QuadTree::colision (const Point & p)
 
 int QuadTree::getNumeroElementos()
 {
-	if (nullptr == hijos[0])
-	{
-		return lista.size();
-	}
-	else
-	{
-		int total = 0;
+	int elementos = 0;
+	if (hijos[0] != nullptr) {
 		for (int i = 0; i < 4; i++) {
-			total += hijos[i]->getNumeroElementos();
+			elementos += hijos[i]->getNumeroElementos();
 		}
-		return lista.size() + total;
 	}
+	elementos += lista.size();
+
+	return elementos;
 }
 

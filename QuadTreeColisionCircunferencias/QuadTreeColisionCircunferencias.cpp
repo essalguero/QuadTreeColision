@@ -25,11 +25,12 @@ const int HEIGHT{ 1000 };
 
 const int RADIO{ 100 };
 
-const int NUMERO_CIRCUNFERENCIAS{ 100 };
+const int NUMERO_CIRCUNFERENCIAS{ 1000000 };
 
 const int MAX_PROFUNDIDAD{ 10 };
 
-const Point PUNTO_CHEQUEAR(100, 450);
+//const Point PUNTO_CHEQUEAR(100, 450);
+const Point PUNTO_CHEQUEAR(500, 500);
 
 //Generar Circunferencias de manera aleatoria
 Circunferencia generarCircunferencia(int identificador)
@@ -47,6 +48,7 @@ int main()
 {
 
 	QuadTree arbol(Point(HEIGHT / 2, WIDTH / 2));
+	QuadTree arbol2(Point(HEIGHT / 2, WIDTH / 2));
 
 	list<Circunferencia> listaCircunferencias;
 
@@ -61,6 +63,10 @@ int main()
 	green.r = 0;
 	green.g = 50;
 	green.b = 0;
+
+	yellow.r = 200;
+	yellow.g = 200;
+	yellow.b = 0;
 
 	red.r = 200;
 	red.g = 0;
@@ -88,19 +94,28 @@ int main()
 	al_clear_to_color(al_map_rgb(0, 0, 0));
 
 	Circunferencia c;
+	int anterior = 0;
+	int nuevo = 0;
 	for (int i = 0; i < NUMERO_CIRCUNFERENCIAS; i++)
 	{
 		c = generarCircunferencia(i);
 		listaCircunferencias.push_back(c);
 
 		arbol.addObjeto(c);
+		anterior = nuevo;
+		nuevo = arbol.getNumeroElementos();
+		if ((nuevo < anterior) || (nuevo > listaCircunferencias.size())) {
+			cout << "Numero de Elementos antes: " << anterior << endl;
+			cout << "Numero de Elementos despues: " << nuevo << endl;
+		}
+		arbol2.addObjeto(c);
 	}
 
-	al_draw_pixel(PUNTO_CHEQUEAR.getX(), PUNTO_CHEQUEAR.getY(), red);
+	al_draw_circle(PUNTO_CHEQUEAR.getX(), PUNTO_CHEQUEAR.getY(), 2.0f, red, 1.0f);
 
 	for (Circunferencia c : listaCircunferencias)
 	{
-		al_draw_circle(c.getCentro().getX() / 10, c.getCentro().getY() / 10, c.getRadio(), green, 1.0f);
+		al_draw_circle(c.getCentro().getX(), c.getCentro().getY(), c.getRadio(), green, 1.0f);
 	}
 
 	
@@ -108,7 +123,7 @@ int main()
 	
 
 	cout << "Total elementos en el arbol: " << arbol.getNumeroElementos() << endl << endl;
-
+	cout << "Total elementos en la lista: " << listaCircunferencias.size() << endl << endl;
 
 	Circunferencia* circunferenciaColision = arbol.colision(PUNTO_CHEQUEAR);
 
@@ -118,8 +133,8 @@ int main()
 	}
 	else
 	{
-		cout << "Punto " << PUNTO_CHEQUEAR << " da Colision con circunferencia de centro: " << 
-			circunferenciaColision->getCentro() << " y profundidad: " << c.getProfundidad() << endl << endl;
+		cout << "Punto " << PUNTO_CHEQUEAR << " da Colision con circunferencia " << circunferenciaColision->getId() <<  " de centro: " <<
+			circunferenciaColision->getCentro() << " y profundidad: " << circunferenciaColision->getProfundidad() << endl << endl;
 	}
 
 
