@@ -92,6 +92,7 @@ bool * QuadTree::getCuadrante_alternativo(Circunferencia c) {
 
 	// Puede haber problemas en diagonales (distancia al centro)
 
+	return cuadrantes;
 }
 
 
