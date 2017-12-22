@@ -21,6 +21,11 @@ public:
 
 	int getNumeroElementos();
 
+
+	void addObjeto_alternativo(Circunferencia);
+
+
+
 private:
 
 	const int MAX_NIVEL = 6;
@@ -39,6 +44,7 @@ private:
 	void particionar();
 
 	int getCuadrante(Circunferencia c);
+	bool* getCuadrante_alternativo(Circunferencia c);
 
 	void colision(const Point & p, vector<Circunferencia> &vectorColisiones);
 };

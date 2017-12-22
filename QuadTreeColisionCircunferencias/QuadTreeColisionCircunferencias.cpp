@@ -25,7 +25,7 @@ const int HEIGHT{ 1000 };
 
 const int RADIO{ 100 };
 
-const int NUMERO_CIRCUNFERENCIAS{ 1000000 };
+const int NUMERO_CIRCUNFERENCIAS{ 100 };
 
 const int MAX_PROFUNDIDAD{ 10 };
 
@@ -48,7 +48,7 @@ int main()
 {
 
 	QuadTree arbol(Point(HEIGHT / 2, WIDTH / 2));
-	QuadTree arbol2(Point(HEIGHT / 2, WIDTH / 2));
+	//QuadTree arbol2(Point(HEIGHT / 2, WIDTH / 2));
 
 	list<Circunferencia> listaCircunferencias;
 
@@ -76,6 +76,7 @@ int main()
 	srand((unsigned)time(NULL));
 
 
+	// Inicializar la libreria Allegro para pintar las circunferencias
 	al_init_primitives_addon();
 
 	if (!al_init()) {
@@ -93,6 +94,7 @@ int main()
 
 	al_clear_to_color(al_map_rgb(0, 0, 0));
 
+	// Generacion aleatoria de circunferencias
 	Circunferencia c;
 	int anterior = 0;
 	int nuevo = 0;
@@ -101,32 +103,38 @@ int main()
 		c = generarCircunferencia(i);
 		listaCircunferencias.push_back(c);
 
-		arbol.addObjeto(c);
+		// Cada circunferencia generada se añade al arbol
+		//arbol.addObjeto(c);
+		arbol.addObjeto_alternativo(c);
 		anterior = nuevo;
 		nuevo = arbol.getNumeroElementos();
 		if ((nuevo < anterior) || (nuevo > listaCircunferencias.size())) {
 			cout << "Numero de Elementos antes: " << anterior << endl;
 			cout << "Numero de Elementos despues: " << nuevo << endl;
 		}
-		arbol2.addObjeto(c);
+		//arbol2.addObjeto(c);
 	}
 
+	// Dibujar un pequeño circulo de color rojo alrededor del punto donde se quiere calcular la colision
 	al_draw_circle(PUNTO_CHEQUEAR.getX(), PUNTO_CHEQUEAR.getY(), 2.0f, red, 1.0f);
 
+	// Dibujar todas las circunferencias
 	for (Circunferencia c : listaCircunferencias)
 	{
 		al_draw_circle(c.getCentro().getX(), c.getCentro().getY(), c.getRadio(), green, 1.0f);
 	}
 
-	
+	// Hace el flip para que la pantalla se actualice
 	al_flip_display();
 	
-
+	// Lista el numero total de elementos en el arbol y en la lista para poder compararlos
 	cout << "Total elementos en el arbol: " << arbol.getNumeroElementos() << endl << endl;
 	cout << "Total elementos en la lista: " << listaCircunferencias.size() << endl << endl;
 
+	// Obtiene la circunferencia con la que colisiona el rayo (Punto indicado)
 	Circunferencia* circunferenciaColision = arbol.colision(PUNTO_CHEQUEAR);
 
+	// Imprime un resultado u otro en función de si hay colisión con alguna de las circunferencias o no hay colisión con ninguna
 	if (nullptr == circunferenciaColision)
 	{
 		cout << "No hay colision con el punto " << PUNTO_CHEQUEAR << endl << endl;
@@ -138,7 +146,8 @@ int main()
 	}
 
 
-	cin;
+	// Espera a que se pulse una tecla + Enter para salir
+	//cin;
 
 	//al_rest(10.0);
 
@@ -147,6 +156,7 @@ int main()
 	while (caracter == ' ')
 		cin >> caracter;
 
+	// Destruye el display de Allegro
 	al_destroy_display(display);
 
     return 0;
