@@ -158,7 +158,7 @@ void QuadTree::addObjeto(Circunferencia circunferencia)
 
 	bool cuadrantes[4]{ false };
 
-	list<Circunferencia> listaActual;
+	//list<Circunferencia> listaActual;
 
 	if (nivel < MAX_NIVEL) {
 

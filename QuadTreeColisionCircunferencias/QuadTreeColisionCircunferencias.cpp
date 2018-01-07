@@ -12,6 +12,8 @@
 
 #include <iostream>
 
+#include <ctime>
+
 using namespace std;
 
 const bool DEBUG = false;
@@ -48,6 +50,8 @@ Circunferencia generarCircunferencia(int identificador)
 
 int main()
 {
+	// Variables para calcular el tiempo de ejecucion
+	unsigned tInicio, tInicioCalculoColision, tFinPintado, tFinGenerandoDatos, tInicioPintado, tFin;
 
 	QuadTree arbol(Point(HEIGHT / 2, WIDTH / 2));
 	//QuadTree arbol2(Point(HEIGHT / 2, WIDTH / 2));
@@ -96,6 +100,8 @@ int main()
 
 	al_clear_to_color(al_map_rgb(0, 0, 0));
 
+	tInicio = clock();
+
 	// Generacion aleatoria de circunferencias
 	Circunferencia c;
 	int anterior = 0;
@@ -106,18 +112,23 @@ int main()
 		listaCircunferencias.push_back(c);
 
 		// Cada circunferencia generada se añade al arbol
-		//arbol.addObjeto(c);
-		arbol.addObjeto_alternativo(c);
-		anterior = nuevo;
-		nuevo = arbol.getNumeroElementos();
-		if ((nuevo < anterior) || (nuevo > listaCircunferencias.size())) {
-			if (DEBUG) {
+		arbol.addObjeto(c);
+		//arbol.addObjeto_alternativo(c);
+		if (DEBUG) {
+			anterior = nuevo;
+			nuevo = arbol.getNumeroElementos();
+			if ((nuevo < anterior) || (nuevo > listaCircunferencias.size())) {
+
 				cout << "Numero de Elementos antes: " << anterior << endl;
 				cout << "Numero de Elementos despues: " << nuevo << endl;
 			}
 		}
 		//arbol2.addObjeto(c);
 	}
+
+	tFinGenerandoDatos = clock();
+
+	tInicioPintado = clock();
 
 	// Dibujar un pequeño circulo de color rojo alrededor del punto donde se quiere calcular la colision
 	al_draw_circle(PUNTO_CHEQUEAR.getX(), PUNTO_CHEQUEAR.getY(), 2.0f, red, 1.0f);
@@ -131,12 +142,18 @@ int main()
 	// Hace el flip para que la pantalla se actualice
 	al_flip_display();
 	
+	tFinPintado = clock();
+
 	// Lista el numero total de elementos en el arbol y en la lista para poder compararlos
 	cout << "Total elementos en el arbol: " << arbol.getNumeroElementos() << endl << endl;
 	cout << "Total elementos en la lista: " << listaCircunferencias.size() << endl << endl;
 
+	tInicioCalculoColision = clock();
+
 	// Obtiene la circunferencia con la que colisiona el rayo (Punto indicado)
 	Circunferencia* circunferenciaColision = arbol.colision(PUNTO_CHEQUEAR);
+
+	tFin = clock();
 
 	// Imprime un resultado u otro en función de si hay colisión con alguna de las circunferencias o no hay colisión con ninguna
 	if (nullptr == circunferenciaColision)
@@ -149,6 +166,16 @@ int main()
 			circunferenciaColision->getCentro() << " y profundidad: " << circunferenciaColision->getProfundidad() << endl << endl;
 	}
 
+
+	cout << "Tiempo de ejecución:" << endl << endl;
+
+	cout << "Tiempo total del programa: " << (static_cast<double>(tFin - tInicio) / CLOCKS_PER_SEC) << endl << endl;
+
+	cout << "Tiempo generando datos: " << (static_cast<double>(tFinGenerandoDatos - tInicio) / CLOCKS_PER_SEC) << endl << endl;
+
+	cout << "Tiempo calculando colisiones: " << (static_cast<double>(tFin - tInicioCalculoColision) / CLOCKS_PER_SEC) << endl << endl;
+
+	cout << "Tiempo pintando en pantalla: " << (static_cast<double>(tFinPintado - tInicioPintado) / CLOCKS_PER_SEC) << endl << endl;
 
 	// Espera a que se pulse una tecla + Enter para salir
 	//cin;
