@@ -65,6 +65,22 @@ int QuadTree::getCuadrante(Circunferencia c)
 	return cuadrante;
 }
 
+void QuadTree::getCuadrantes(Circunferencia c, bool* cuadrantes)
+{
+
+	Point p = Point(centro.getX() * 2, centro.getY() * 2);
+
+	/*cuadrantes[0] = (c.getCentro().getX() < (centro.getX() + c.getRadio()) && c.getCentro().getY() < (centro.getY() + c.getRadio()));
+	cuadrantes[1] = (c.getCentro().getX() < (centro.getX() + c.getRadio()) && c.getCentro().getY() > (centro.getY() - c.getRadio()));
+	cuadrantes[2] = (c.getCentro().getX() > (centro.getX() - c.getRadio()) && c.getCentro().getY() > (centro.getY() - c.getRadio()));
+	cuadrantes[3] = (c.getCentro().getX() > (centro.getX() - c.getRadio()) && c.getCentro().getY() < (centro.getY() + c.getRadio()));*/
+
+	cuadrantes[0] = (c.getCentro().getX() < (p.getX() + c.getRadio()) && c.getCentro().getY() < (p.getY() + c.getRadio()));
+	cuadrantes[1] = (c.getCentro().getX() < (p.getX() + c.getRadio()) && c.getCentro().getY() > (p.getY() - c.getRadio()));
+	cuadrantes[2] = (c.getCentro().getX() > (p.getX() - c.getRadio()) && c.getCentro().getY() > (p.getY() - c.getRadio()));
+	cuadrantes[3] = (c.getCentro().getX() > (p.getX() - c.getRadio()) && c.getCentro().getY() < (p.getY() + c.getRadio()));
+}
+
 
 bool * QuadTree::getCuadrante_alternativo(Circunferencia c) {
 	bool cuadrantes[4] = { false };
@@ -131,12 +147,50 @@ void QuadTree::addObjeto_alternativo(Circunferencia circunferencia)
 	}
 }
 
-
-
-
-
+/*void QuadTree::getCuadrantes(Circunferencia c, const bool[] cuadrantes)
+{
+	
+}*/
 
 void QuadTree::addObjeto(Circunferencia circunferencia)
+{
+	int cuadrante = -1;
+
+	bool cuadrantes[4]{ false };
+
+	list<Circunferencia> listaActual;
+
+	if (nivel < MAX_NIVEL) {
+
+		getCuadrantes(circunferencia, cuadrantes);
+
+		if (cuadrantes[0] && cuadrantes[1] && cuadrantes[2] && cuadrantes[3])
+		{
+			lista.push_back(circunferencia);
+		}
+		else
+		{
+			//cuadrante = getCuadrante(circunferencia);
+
+			if (hijos[0] == nullptr)
+			{
+				particionar();
+			}
+
+			for (int i = 0; i < 4; i++) {
+				if (cuadrantes[i]) {
+					hijos[i]->addObjeto(circunferencia);
+				}
+			}
+		}
+	}
+	else {
+		lista.push_back(circunferencia);
+	}
+}
+
+
+/*void QuadTree::addObjeto(Circunferencia circunferencia)
 {
 	int cuadrante = -1;
 
@@ -159,7 +213,7 @@ void QuadTree::addObjeto(Circunferencia circunferencia)
 		}
 		else {
 			lista.push_back(circunferencia);
-		}*/
+//		} 
 		if (abs(circunferencia.getCentro().getX() - centro.getX()) < circunferencia.getRadio() ||
 			abs(circunferencia.getCentro().getY() - centro.getY()) < circunferencia.getRadio())
 		{
@@ -186,7 +240,7 @@ void QuadTree::addObjeto(Circunferencia circunferencia)
 	else {
 		lista.push_back(circunferencia);
 	}
-}
+}*/
 
 void QuadTree::addObjeto_old(Circunferencia circunferencia)
 {

@@ -44,6 +44,9 @@ private:
 	void particionar();
 
 	int getCuadrante(Circunferencia c);
+	
+	void getCuadrantes(Circunferencia, bool*);
+	
 	bool* getCuadrante_alternativo(Circunferencia c);
 
 	void colision(const Point & p, vector<Circunferencia> &vectorColisiones);

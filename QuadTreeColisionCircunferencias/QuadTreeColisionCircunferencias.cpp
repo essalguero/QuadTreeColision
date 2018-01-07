@@ -14,6 +14,8 @@
 
 using namespace std;
 
+const bool DEBUG = false;
+
 const int SCREEN_WIDTH{ 1000 };
 const int SCREEN_HEIGHT{ 1000 };
 
@@ -25,7 +27,7 @@ const int HEIGHT{ 1000 };
 
 const int RADIO{ 100 };
 
-const int NUMERO_CIRCUNFERENCIAS{ 100 };
+const int NUMERO_CIRCUNFERENCIAS{ 100000 };
 
 const int MAX_PROFUNDIDAD{ 10 };
 
@@ -109,8 +111,10 @@ int main()
 		anterior = nuevo;
 		nuevo = arbol.getNumeroElementos();
 		if ((nuevo < anterior) || (nuevo > listaCircunferencias.size())) {
-			cout << "Numero de Elementos antes: " << anterior << endl;
-			cout << "Numero de Elementos despues: " << nuevo << endl;
+			if (DEBUG) {
+				cout << "Numero de Elementos antes: " << anterior << endl;
+				cout << "Numero de Elementos despues: " << nuevo << endl;
+			}
 		}
 		//arbol2.addObjeto(c);
 	}
