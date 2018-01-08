@@ -16,24 +16,26 @@
 
 using namespace std;
 
+// Constantes a utilizar en el programa
+
 const bool DEBUG = false;
 
 const int SCREEN_WIDTH{ 1000 };
 const int SCREEN_HEIGHT{ 1000 };
 
-/*const int SCREEN_WIDTH{ 800 };
-const int SCREEN_HEIGHT{ 600 };*/
+const int WIDTH{ SCREEN_WIDTH };
+const int HEIGHT{ SCREEN_HEIGHT };
 
-const int WIDTH{ 1000 };
-const int HEIGHT{ 1000 };
-
+// Radio que tendrán todas las circunferencias
 const int RADIO{ 100 };
 
+// Numero de circunferencias a crear
 const int NUMERO_CIRCUNFERENCIAS{ 100000 };
 
+// Valor máximo del z-buffer. Valor mínimo es 0. El valor más grande indica que el objeto es más profundo
 const int MAX_PROFUNDIDAD{ 10 };
 
-//const Point PUNTO_CHEQUEAR(100, 450);
+// Punto en el que se hace el Cast del rayo
 const Point PUNTO_CHEQUEAR(500, 500);
 
 //Generar Circunferencias de manera aleatoria
@@ -54,7 +56,6 @@ int main()
 	unsigned tInicio, tInicioCalculoColision, tFinPintado, tFinGenerandoDatos, tInicioPintado, tFin;
 
 	QuadTree arbol(Point(HEIGHT / 2, WIDTH / 2));
-	//QuadTree arbol2(Point(HEIGHT / 2, WIDTH / 2));
 
 	list<Circunferencia> listaCircunferencias;
 
@@ -66,6 +67,7 @@ int main()
 	ALLEGRO_COLOR blue = ALLEGRO_COLOR();
 	ALLEGRO_BITMAP *backBuffer = NULL;
 
+	// Fijar los colores para las circunferencias
 	green.r = 0;
 	green.g = 50;
 	green.b = 0;
@@ -113,7 +115,7 @@ int main()
 
 		// Cada circunferencia generada se añade al arbol
 		arbol.addObjeto(c);
-		//arbol.addObjeto_alternativo(c);
+
 		if (DEBUG) {
 			anterior = nuevo;
 			nuevo = arbol.getNumeroElementos();
@@ -123,11 +125,12 @@ int main()
 				cout << "Numero de Elementos despues: " << nuevo << endl;
 			}
 		}
-		//arbol2.addObjeto(c);
 	}
 
+	// Obtener el tiempo del programa en el que ha finalizado la creación de circunferencias aleatorias
 	tFinGenerandoDatos = clock();
 
+	// Obtener el tiempo del programa en el que se empiezan a pintar las circunferencias en pantalla
 	tInicioPintado = clock();
 
 	// Dibujar un pequeño circulo de color rojo alrededor del punto donde se quiere calcular la colision
@@ -167,6 +170,7 @@ int main()
 	}
 
 
+	// Mostrar los resultados en pantalla
 	cout << "Tiempo de ejecución:" << endl << endl;
 
 	cout << "Tiempo total del programa: " << (static_cast<double>(tFin - tInicio) / CLOCKS_PER_SEC) << endl << endl;
@@ -177,11 +181,10 @@ int main()
 
 	cout << "Tiempo pintando en pantalla: " << (static_cast<double>(tFinPintado - tInicioPintado) / CLOCKS_PER_SEC) << endl << endl;
 
-	// Espera a que se pulse una tecla + Enter para salir
-	//cin;
-
+	
 	//al_rest(10.0);
 
+	// Para salir del programa hay que pulsar una tecla y después el enter
 	char caracter = ' ';
 
 	while (caracter == ' ')

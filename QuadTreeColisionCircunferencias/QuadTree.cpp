@@ -3,6 +3,7 @@
 
 #include <cstdlib>
 
+// Destruye los nodos hijos (creados dinámicamente)
 QuadTree::~QuadTree()
 {
 	if (hijos[0] != nullptr)
@@ -14,6 +15,7 @@ QuadTree::~QuadTree()
 	}
 }
 
+// Genera un nivel más en el QuadTree
 void QuadTree::particionar()
 {
 	int width = centro.getX() / 2;
@@ -25,158 +27,48 @@ void QuadTree::particionar()
 	
 }
 
-int QuadTree::getCuadrante(Circunferencia c)
-{
-	int x = c.getCentro().getX();
-	int y = c.getCentro().getY();
-
-	int cuadrante = 0;
-
-	if (x < centro.getX())
-	{
-		if (y < centro.getY())
-		{
-			cuadrante = 0;
-		}
-		else if (y > centro.getY())
-		{
-			cuadrante = 3;
-		}
-		else
-		{
-			cuadrante = -1;
-		}
-	}
-	else if (x > centro.getX())
-	{
-		if (y < centro.getY())
-		{
-			cuadrante = 2;
-		}
-		else if (y > centro.getY())
-		{
-			cuadrante = 1;
-		}
-		else
-		{
-			cuadrante = -1;
-		}
-	}
-	return cuadrante;
-}
-
+// Devuelve los cuadrantes (del nodo actual del QuadTree) a los que pertenece una circunferencia
 void QuadTree::getCuadrantes(Circunferencia c, bool* cuadrantes)
 {
+	// Punto central del nodo del árbol actual
+	Point p = centro;
 
-	Point p = Point(centro.getX() * 2, centro.getY() * 2);
-
-	/*cuadrantes[0] = (c.getCentro().getX() < (centro.getX() + c.getRadio()) && c.getCentro().getY() < (centro.getY() + c.getRadio()));
-	cuadrantes[1] = (c.getCentro().getX() < (centro.getX() + c.getRadio()) && c.getCentro().getY() > (centro.getY() - c.getRadio()));
-	cuadrantes[2] = (c.getCentro().getX() > (centro.getX() - c.getRadio()) && c.getCentro().getY() > (centro.getY() - c.getRadio()));
-	cuadrantes[3] = (c.getCentro().getX() > (centro.getX() - c.getRadio()) && c.getCentro().getY() < (centro.getY() + c.getRadio()));*/
-
+	// Calcular los cuadrantes en los que está incluida la circunferencia
 	cuadrantes[0] = (c.getCentro().getX() < (p.getX() + c.getRadio()) && c.getCentro().getY() < (p.getY() + c.getRadio()));
 	cuadrantes[1] = (c.getCentro().getX() < (p.getX() + c.getRadio()) && c.getCentro().getY() > (p.getY() - c.getRadio()));
 	cuadrantes[2] = (c.getCentro().getX() > (p.getX() - c.getRadio()) && c.getCentro().getY() > (p.getY() - c.getRadio()));
 	cuadrantes[3] = (c.getCentro().getX() > (p.getX() - c.getRadio()) && c.getCentro().getY() < (p.getY() + c.getRadio()));
 }
 
-
-bool * QuadTree::getCuadrante_alternativo(Circunferencia c) {
-	bool cuadrantes[4] = { false };
-
-	int x = c.getCentro().getX();
-	int y = c.getCentro().getY();
-
-
-
-	if ((x - c.getRadio()) <= centro.getX()) {
-		if ((y - c.getCentro().getY()) <= centro.getY())
-			cuadrantes[0] = true;
-
-		if ((y - c.getCentro().getY()) >= centro.getY())
-			cuadrantes[1] = true;
-	}
-
-	if ((x + c.getRadio()) >= centro.getX()) {
-		if ((y - c.getCentro().getY()) <= centro.getY())
-			cuadrantes[2] = true;
-
-		if ((y - c.getCentro().getY()) >= centro.getY())
-			cuadrantes[3] = true;
-	}
-
-	// Puede haber problemas en diagonales (distancia al centro)
-
-	return cuadrantes;
-}
-
-
-
-
-void QuadTree::addObjeto_alternativo(Circunferencia circunferencia)
-{
-	bool * cuadrantes;
-
-	list<Circunferencia> listaActual;
-
-	if (nivel < MAX_NIVEL) {
-		if (abs(circunferencia.getCentro().getX() - centro.getX()) < circunferencia.getRadio() ||
-			abs(circunferencia.getCentro().getY() - centro.getY()) < circunferencia.getRadio())
-		{
-			lista.push_back(circunferencia);
-		}
-		else
-		{
-			cuadrantes = getCuadrante_alternativo(circunferencia);
-
-			
-				if (hijos[0] == nullptr)
-				{
-					particionar();
-				}
-				for (int i = 0; i < 4; i++) {
-					if (cuadrantes[i]) {
-						hijos[i]->addObjeto(circunferencia);
-					}
-				}
-		}
-	}
-	else {
-		lista.push_back(circunferencia);
-	}
-}
-
-/*void QuadTree::getCuadrantes(Circunferencia c, const bool[] cuadrantes)
-{
-	
-}*/
-
+// Añade una circunferencia al QuadTree
 void QuadTree::addObjeto(Circunferencia circunferencia)
 {
 	int cuadrante = -1;
 
 	bool cuadrantes[4]{ false };
 
-	//list<Circunferencia> listaActual;
-
+	// Si no estamos en el último nivel del árbol, se intenta insertar la circunferencia en el cuadrante que le corresponda
 	if (nivel < MAX_NIVEL) {
 
+		// Obtener los cuadrantes en los que puede estar la circunferencia
 		getCuadrantes(circunferencia, cuadrantes);
 
+		// Si puede estar en todos los cuadrantes, se inserta en la lista del nodo actual
 		if (cuadrantes[0] && cuadrantes[1] && cuadrantes[2] && cuadrantes[3])
 		{
 			lista.push_back(circunferencia);
 		}
 		else
 		{
-			//cuadrante = getCuadrante(circunferencia);
+			// Si no se inserta en la lista del nodo actual, se tiene que insertar en alguno de los nodos hijos
 
+			// Comprobar que los nodos hijos existen. Si no, crearlos
 			if (hijos[0] == nullptr)
 			{
 				particionar();
 			}
 
+			// Insertar en todos los cuadrantes que toca la circunferencia
 			for (int i = 0; i < 4; i++) {
 				if (cuadrantes[i]) {
 					hijos[i]->addObjeto(circunferencia);
@@ -185,132 +77,18 @@ void QuadTree::addObjeto(Circunferencia circunferencia)
 		}
 	}
 	else {
+		// Si estamos en el último nivel del árbol, se inserta la circunferencia en la lista del nodo actual
 		lista.push_back(circunferencia);
 	}
 }
 
 
-/*void QuadTree::addObjeto(Circunferencia circunferencia)
-{
-	int cuadrante = -1;
-
-	list<Circunferencia> listaActual;
-
-	if (nivel < MAX_NIVEL) {
-		/*if ( abs(circunferencia.getCentro().getX() - centro.getX()) < circunferencia.getRadio() && 
-			abs(circunferencia.getCentro().getY() - centro.getY()) < circunferencia.getRadio())
-		{
-			cuadrante = getCuadrante(circunferencia);
-
-			if (-1 == cuadrante)
-			{
-				listaActual.push_back(c);
-			}
-			else
-			{
-				hijos[cuadrante]->addObjeto(c);
-			}
-		}
-		else {
-			lista.push_back(circunferencia);
-//		} 
-		if (abs(circunferencia.getCentro().getX() - centro.getX()) < circunferencia.getRadio() ||
-			abs(circunferencia.getCentro().getY() - centro.getY()) < circunferencia.getRadio())
-		{
-			lista.push_back(circunferencia);
-		}
-		else
-		{
-			cuadrante = getCuadrante(circunferencia);
-
-			if (-1 == cuadrante)
-			{
-				lista.push_back(circunferencia);
-			}
-			else
-			{
-				if (hijos[0] == nullptr)
-				{
-					particionar();
-				}
-				hijos[cuadrante]->addObjeto(circunferencia);
-			}
-		}
-	}
-	else {
-		lista.push_back(circunferencia);
-	}
-}*/
-
-void QuadTree::addObjeto_old(Circunferencia circunferencia)
-{
-	int cuadrante = -1;
-
-	list<Circunferencia> listaActual;
-
-	if (nivel < MAX_NIVEL) {
-
-		if (lista.size() == 6) {
-			particionar();
-
-			cout << "Particionando" << endl;
-
-			for (Circunferencia c : lista)
-			{
-				cuadrante = getCuadrante(c);
-
-				if (-1 == cuadrante)
-				{
-					listaActual.push_back(c);
-				}
-				else
-				{
-					hijos[cuadrante]->addObjeto(c);
-				}
-			}
-			lista = listaActual;
-
-			cuadrante = getCuadrante(circunferencia);
-			if (-1 == cuadrante)
-			{
-				lista.push_back(circunferencia);
-			}
-			else
-			{
-				hijos[cuadrante]->addObjeto(circunferencia);
-			}
-		}
-		else
-		{
-			if (nullptr == hijos[0])
-			{
-				lista.push_back(circunferencia);
-			}
-			else
-			{
-				cuadrante = getCuadrante(circunferencia);
-				if (-1 == cuadrante)
-				{
-					lista.push_back(circunferencia);
-				}
-				else
-				{
-					hijos[cuadrante]->addObjeto(circunferencia);
-				}
-			}
-		}
-	}
-	else
-	{
-		lista.push_back(circunferencia);
-	}
-
-
-}
-
-
+// Guarda en la vectorColisiones todas las circunferencias que contiene al punto p (colision). Las circunferencias con las que colisiona se van
+// guardando en un vector en la parte de atras del vector, excepto cuando encuentra una con menor profundidad que la primera del vector. En este
+// caso, se guarda en la parte delantera
 void QuadTree::colision(const Point & p, vector<Circunferencia> & vectorColisiones)
 {
+	// Si la lista del nodo actual tiene objetos, se buscan colisiones con los objetos de la lista
 	for (Circunferencia c : lista)
 	{
 		if (p.distance2(c.getCentro()) <= (c.getRadio() * c.getRadio()))
@@ -324,6 +102,7 @@ void QuadTree::colision(const Point & p, vector<Circunferencia> & vectorColision
 		}
 	}
 
+	// Si hay nodos jijos, buscar las colisiones en los nodos hijos
 	if (nullptr != hijos[0])
 	{
 		for (int i = 0; i < 4; i++) {
@@ -332,48 +111,19 @@ void QuadTree::colision(const Point & p, vector<Circunferencia> & vectorColision
 	}
 }
 
+
+// Devuelve la circunferencia con menor profundidad (menor z-buffer) que contiene al punto p (colision). Las circunferencias con las que colisiona se van
+// guardando en un vector. Devuelve al final la primera que encuentre de entre todas las que tienen la misma profundidad
 Circunferencia * QuadTree::colision (const Point & p)
 {
 	vector<Circunferencia> vectorColisiones;
 	Circunferencia * circunferenciaColision = nullptr;
 
-	int pos = 0;
-	
-	for (Circunferencia c : lista)
-	{
-		if (p.distance2(c.getCentro()) <= (c.getRadio() * c.getRadio()))
-		{
-			if ( (vectorColisiones.size() == 0) || 
-				 (c.getProfundidad() >= (*vectorColisiones.begin()).getProfundidad()) ) {
-				vectorColisiones.push_back(c);
-			}
-			else {
-				vectorColisiones.insert(vectorColisiones.begin(), c);
-			}
-		}
-	}
+	colision(p, vectorColisiones);
 
-	if (nullptr != hijos[0])
-	{
-		for (int i = 0; i < 4; i++)
-		{
-			hijos[i]->colision(p, vectorColisiones);
-		}
-	}
-
+	// Devuelve la circunferencia que corresponda
 	if (vectorColisiones.size() != 0)
 	{
-		/*int i = 1;
-		for (auto it = vectorColisiones.begin() + 1; it < vectorColisiones.end(); ++it)
-		{
-			if ((*it).getProfundidad() > vectorColisiones.at(pos).getProfundidad())
-			{
-				pos = i;
-			}
-			i++;
-		}
-
-		circunferenciaColision = new Circunferencia(vectorColisiones.at(pos));*/
 		circunferenciaColision = new Circunferencia(vectorColisiones.at(0));
 	}
 	
@@ -381,7 +131,7 @@ Circunferencia * QuadTree::colision (const Point & p)
 }
 
 
-
+// Devuelve el número de elementos total contenidos en el árbol
 int QuadTree::getNumeroElementos()
 {
 	int elementos = 0;

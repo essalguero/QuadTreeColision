@@ -24,11 +24,13 @@ void Point::setY(int y)
 	this->y = y;
 }
 
+// Asignación de los valores x e y
 void Point::operator=(const Point &p) {
 	x = p.x;
 	y = p.y;
 }
 
+// Punto menor que otro
 bool Point::operator<(const Point &p) const {
 	if (x < p.x)
 		return true;
@@ -38,6 +40,7 @@ bool Point::operator<(const Point &p) const {
 	return false;
 }
 
+// Punto mayor que otro
 bool Point::operator>(const Point &p) const {
 	if (x > p.x)
 		return true;
@@ -47,10 +50,12 @@ bool Point::operator>(const Point &p) const {
 	return false;
 }
 
+// Suma de dos puntos
 Point Point::operator+(const Point &p) const {
 	return Point(x + p.x, y + p.y);
 }
 
+// Escalado del vector por una constante
 Point Point::operator* (const float & factorEscalado) const {
 
 	Point p;
@@ -60,6 +65,7 @@ Point Point::operator* (const float & factorEscalado) const {
 	return p;
 }
 
+// Cuadrado de la distancia desde este punto al punto p
 double Point::distance2(const Point & p) const {
 	double distX = x - p.x;
 	double distY = y - p.y;
